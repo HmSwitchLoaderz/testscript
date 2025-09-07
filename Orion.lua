@@ -98,44 +98,42 @@ task.spawn(function()
 end)
 
 local function AddDraggingFunctionality(DragPoint, Main)
-	pcall(function()
-		local Dragging, DragInput, StartPos, StartMousePos
+    local Dragging, DragInput, StartPos, StartMousePos
 
-		local function Update(input)
-			local Delta = input.Position - StartMousePos
-			local GoalPos = UDim2.new(
-				StartPos.X.Scale, StartPos.X.Offset + Delta.X,
-				StartPos.Y.Scale, StartPos.Y.Offset + Delta.Y
-			)
-			TweenService:Create(Main, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Position = GoalPos}):Play()
-		end
+    local function Update(input)
+        local Delta = input.Position - StartMousePos
+        local GoalPos = UDim2.new(
+            StartPos.X.Scale, StartPos.X.Offset + Delta.X,
+            StartPos.Y.Scale, StartPos.Y.Offset + Delta.Y
+        )
+        TweenService:Create(Main, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Position = GoalPos}):Play()
+    end
 
-		DragPoint.InputBegan:Connect(function(input)
-			if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-				Dragging = true
-				StartMousePos = input.Position
-				StartPos = Main.Position
+    DragPoint.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            Dragging = true
+            StartMousePos = input.Position
+            StartPos = Main.Position
 
-				input.Changed:Connect(function()
-					if input.UserInputState == Enum.UserInputState.End then
-						Dragging = false
-					end
-				end)
-			end
-		end)
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    Dragging = false
+                end
+            end)
+        end
+    end)
 
-		DragPoint.InputChanged:Connect(function(input)
-			if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
-				DragInput = input
-			end
-		end)
+    DragPoint.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+            DragInput = input
+        end
+    end)
 
-		UserInputService.InputChanged:Connect(function(input)
-			if input == DragInput and Dragging then
-				Update(input)
-			end
-		end)
-	end)
+    UserInputService.InputChanged:Connect(function(input)
+        if Dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+            Update(input)
+        end
+    end)
 end
 
 
