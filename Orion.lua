@@ -99,33 +99,45 @@ end)
 
 local function AddDraggingFunctionality(DragPoint, Main)
 	pcall(function()
-		local Dragging, DragInput, MousePos, FramePos = false
-		DragPoint.InputBegan:Connect(function(Input)
-			if Input.UserInputType == Enum.UserInputType.MouseButton1 then
-				Dragging = true
-				MousePos = Input.Position
-				FramePos = Main.Position
+		local Dragging, DragInput, StartPos, StartMousePos
 
-				Input.Changed:Connect(function()
-					if Input.UserInputState == Enum.UserInputState.End then
+		local function Update(input)
+			local Delta = input.Position - StartMousePos
+			local GoalPos = UDim2.new(
+				StartPos.X.Scale, StartPos.X.Offset + Delta.X,
+				StartPos.Y.Scale, StartPos.Y.Offset + Delta.Y
+			)
+			TweenService:Create(Main, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Position = GoalPos}):Play()
+		end
+
+		DragPoint.InputBegan:Connect(function(input)
+			if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+				Dragging = true
+				StartMousePos = input.Position
+				StartPos = Main.Position
+
+				input.Changed:Connect(function()
+					if input.UserInputState == Enum.UserInputState.End then
 						Dragging = false
 					end
 				end)
 			end
 		end)
-		DragPoint.InputChanged:Connect(function(Input)
-			if Input.UserInputType == Enum.UserInputType.MouseMovement then
-				DragInput = Input
+
+		DragPoint.InputChanged:Connect(function(input)
+			if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+				DragInput = input
 			end
 		end)
-		UserInputService.InputChanged:Connect(function(Input)
-			if Input == DragInput and Dragging then
-				local Delta = Input.Position - MousePos
-				TweenService:Create(Main, TweenInfo.new(0.45, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Position  = UDim2.new(FramePos.X.Scale,FramePos.X.Offset + Delta.X, FramePos.Y.Scale, FramePos.Y.Offset + Delta.Y)}):Play()
+
+		UserInputService.InputChanged:Connect(function(input)
+			if input == DragInput and Dragging then
+				Update(input)
 			end
 		end)
 	end)
-end   
+end
+
 
 local function Create(Name, Properties, Children)
 	local Object = Instance.new(Name)
