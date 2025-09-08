@@ -864,7 +864,7 @@ function OrionLib:MakeWindow(WindowConfig)
 				end
 				return ParagraphFunction
 			end    
-			function ElementFunction:AddButton(ButtonConfig)
+function ElementFunction:AddButton(ButtonConfig)
     ButtonConfig = ButtonConfig or {}
     ButtonConfig.Name = ButtonConfig.Name or "Button"
     ButtonConfig.Callback = ButtonConfig.Callback or function() end
@@ -892,13 +892,16 @@ function OrionLib:MakeWindow(WindowConfig)
         Click
     }), "Second")
 
-    -- ... all Tween connections ...
+    -- **Connect the click callback properly**
+    Click.MouseButton1Click:Connect(function()
+        pcall(ButtonConfig.Callback)
+    end)
 
     function Button:Set(ButtonText)
         ButtonFrame.Content.Text = ButtonText
     end
 
-    -- **Add this Remove method**
+    -- **Remove method**
     function Button:Remove()
         if ButtonFrame and ButtonFrame.Parent then
             ButtonFrame:Destroy()
