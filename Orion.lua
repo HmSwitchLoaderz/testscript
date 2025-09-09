@@ -892,20 +892,16 @@ function ElementFunction:AddButton(ButtonConfig)
         Click
     }), "Second")
 
-    -- **Connect the click callback properly**
-    Click.MouseButton1Click:Connect(function()
-        pcall(ButtonConfig.Callback)
-    end)
-
-    function Button:Set(ButtonText)
-        ButtonFrame.Content.Text = ButtonText
-    end
-
-    -- **Remove method**
+    -- **Add the Remove method**
     function Button:Remove()
         if ButtonFrame and ButtonFrame.Parent then
             ButtonFrame:Destroy()
         end
+    end
+
+    -- Keep existing Set method
+    function Button:Set(ButtonText)
+        ButtonFrame.Content.Text = ButtonText
     end
 
     return Button
