@@ -872,36 +872,55 @@ function ElementFunction:AddButton(ButtonConfig)
 
     local Button = {}
 
-    local Click = SetProps(MakeElement("Button"), { Size = UDim2.new(1, 0, 1, 0) })
+    -- Click overlay button
+    local Click = SetProps(MakeElement("Button"), {
+        Size = UDim2.new(1, 0, 1, 0),
+        Position = UDim2.new(0, 0, 0, 0),
+        BackgroundTransparency = 1,
+        AutoButtonColor = true,
+        ZIndex = 3
+    })
 
+    -- Main frame
     local ButtonFrame = AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 5), {
         Size = UDim2.new(1, 0, 0, 33),
-        Parent = ItemParent
+        Parent = ItemParent,
+        Active = true,   -- Make sure it can receive input
+        ZIndex = 1
     }), {
         AddThemeObject(SetProps(MakeElement("Label", ButtonConfig.Name, 15), {
             Size = UDim2.new(1, -12, 1, 0),
             Position = UDim2.new(0, 12, 0, 0),
             Font = Enum.Font.GothamBold,
-            Name = "Content"
+            Name = "Content",
+            ZIndex = 2
         }), "Text"),
         AddThemeObject(SetProps(MakeElement("Image", ButtonConfig.Icon), {
             Size = UDim2.new(0, 20, 0, 20),
             Position = UDim2.new(1, -30, 0, 7),
+            ZIndex = 2
         }), "TextDark"),
         AddThemeObject(MakeElement("Stroke"), "Stroke"),
         Click
     }), "Second")
 
-    -- **Add the Remove method**
+    -- Connect click callback
+    Click.MouseButton1Click:Connect(function()
+        pcall(ButtonConfig.Callback)
+    end)
+
+    -- Set button text dynamically
+    function Button:Set(ButtonText)
+        if ButtonFrame and ButtonFrame:FindFirstChild("Content") then
+            ButtonFrame.Content.Text = ButtonText
+        end
+    end
+
+    -- Remove button
     function Button:Remove()
         if ButtonFrame and ButtonFrame.Parent then
             ButtonFrame:Destroy()
         end
-    end
-
-    -- Keep existing Set method
-    function Button:Set(ButtonText)
-        ButtonFrame.Content.Text = ButtonText
     end
 
     return Button
@@ -1707,11 +1726,6 @@ end
 		return ElementFunction   
 	end  
 	
-	OrionLib:MakeNotification({
-		Name = "UI Library Upgrade",
-		Content = "New UI Library Available at sirius.menu/discord and sirius.menu/rayfield",
-		Time = 5
-	})
 	
 
 	
